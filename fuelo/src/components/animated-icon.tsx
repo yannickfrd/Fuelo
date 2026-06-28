@@ -80,16 +80,17 @@ const glowKeyframe = new Keyframe({
   },
 });
 
-function FueloDrop() {
+function FueloDrop({ size }: { size: number }) {
+  const r = size / 2;
   return (
     <View
       style={{
-        width: 42,
-        height: 42,
+        width: size,
+        height: size,
         backgroundColor: '#ffffff',
-        borderTopLeftRadius: 21,
-        borderTopRightRadius: 21,
-        borderBottomLeftRadius: 21,
+        borderTopLeftRadius: r,
+        borderTopRightRadius: r,
+        borderBottomLeftRadius: r,
         borderBottomRightRadius: 0,
         transform: [{ rotate: '225deg' }],
       }}
@@ -97,16 +98,20 @@ function FueloDrop() {
   );
 }
 
-export function AnimatedIcon() {
+export function AnimatedIcon({ size = 128 }: { size?: number }) {
+  const glowSize = size * 1.57;
+  const dropSize = size * 0.33;
+  const bgRadius = size * 0.31;
+
   return (
-    <View style={styles.iconContainer}>
-      <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>
-        <Image style={styles.glow} source={require('@/assets/images/logo-glow.png')} tintColor="#2A6049" />
+    <View style={[styles.iconContainer, { width: size, height: size }]}>
+      <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={[styles.glow, { width: glowSize, height: glowSize }]}>
+        <Image style={{ width: glowSize, height: glowSize }} source={require('@/assets/images/logo-glow.png')} tintColor="#2A6049" />
       </Animated.View>
 
-      <Animated.View entering={keyframe.duration(DURATION)} style={styles.background} />
+      <Animated.View entering={keyframe.duration(DURATION)} style={[styles.background, { width: size, height: size, borderRadius: bgRadius }]} />
       <Animated.View style={styles.imageContainer} entering={logoKeyframe.duration(DURATION)}>
-        <FueloDrop />
+        <FueloDrop size={dropSize} />
       </Animated.View>
     </View>
   );

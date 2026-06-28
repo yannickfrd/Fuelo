@@ -52,11 +52,16 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
-        <ThemedText type="title" style={styles.heading}>Mes véhicules</ThemedText>
+        <View style={styles.header}>
+          <View style={styles.brand}>
+            <AnimatedIcon size={56} />
+            <ThemedText type="subtitle">fuelo</ThemedText>
+          </View>
+          <ThemedText type="subtitle" style={styles.pageTitle}>Mes véhicules</ThemedText>
+        </View>
 
         {vehicles.length === 0 ? (
           <View style={styles.empty}>
-            <AnimatedIcon />
             <ThemedText type="smallBold" style={styles.emptyTitle}>Aucun véhicule</ThemedText>
             <ThemedText type="small" themeColor="textSecondary" style={styles.emptySubtitle}>
               Ajoutez votre premier véhicule pour commencer à suivre vos pleins.
@@ -102,9 +107,19 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.three,
   },
-  heading: {
+  header: {
+    alignItems: 'flex-start',
+    gap: Spacing.two,
     marginTop: Spacing.three,
     marginBottom: Spacing.three,
+  },
+  brand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  pageTitle: {
+    marginTop: Spacing.five,
   },
   list: {
     paddingBottom: BottomTabInset + 80,
