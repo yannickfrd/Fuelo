@@ -1,62 +1,95 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { useCallback, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { VehicleCard } from '@/components/vehicle-card';
+import { VehicleModal } from '@/components/vehicle-modal';
+import { BottomTabInset, Primary, Spacing } from '@/constants/theme';
+import { addVehicle, deleteVehicle, getVehicles, toggleFavorite, updateVehicle } from '@/services/database';
+import { Vehicle } from '@/types/vehicle';
 
 export default function HomeScreen() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>(() => getVehicles());
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<Vehicle | undefined>(undefined);
+
+  const refresh = useCallback(() => setVehicles(getVehicles()), []);
+
+  function openCreate() {
+    setEditingVehicle(undefined);
+    setModalVisible(true);
+  }
+
+  function openEdit(vehicle: Vehicle) {
+    setEditingVehicle(vehicle);
+    setModalVisible(true);
+  }
+
+  function handleSave(data: Omit<Vehicle, 'id' | 'isFavorite'>) {
+    if (editingVehicle) {
+      updateVehicle({ ...data, id: editingVehicle.id, isFavorite: editingVehicle.isFavorite });
+    } else {
+      addVehicle(data);
+    }
+    refresh();
+  }
+
+  function handleDelete() {
+    if (editingVehicle) {
+      deleteVehicle(editingVehicle.id);
+      refresh();
+    }
+  }
+
+  function handleFavorite(vehicle: Vehicle) {
+    toggleFavorite(vehicle.id, vehicle.isFavorite !== 1);
+    refresh();
+  }
+
   return (
     <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            fuelo
-          </ThemedText>
-        </ThemedView>
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+        <ThemedText type="title" style={styles.heading}>Mes véhicules</ThemedText>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
+        {vehicles.length === 0 ? (
+          <View style={styles.empty}>
+            <AnimatedIcon />
+            <ThemedText type="smallBold" style={styles.emptyTitle}>Aucun véhicule</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.emptySubtitle}>
+              Ajoutez votre premier véhicule pour commencer à suivre vos pleins.
+            </ThemedText>
+          </View>
+        ) : (
+          <FlatList
+            data={vehicles}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={({ item }) => (
+              <VehicleCard
+                vehicle={item}
+                onEdit={() => openEdit(item)}
+                onDelete={() => { deleteVehicle(item.id); refresh(); }}
+                onFavorite={() => handleFavorite(item)}
+              />
+            )}
+            contentContainerStyle={styles.list}
           />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
+        )}
       </SafeAreaView>
+
+      <Pressable style={styles.fab} onPress={openCreate}>
+        <ThemedText style={styles.fabIcon}>+</ThemedText>
+      </Pressable>
+
+      <VehicleModal
+        visible={modalVisible}
+        vehicle={editingVehicle}
+        onSave={handleSave}
+        onDelete={handleDelete}
+        onClose={() => setModalVisible(false)}
+      />
     </ThemedView>
   );
 }
@@ -64,35 +97,51 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    paddingHorizontal: Spacing.three,
   },
-  heroSection: {
+  heading: {
+    marginTop: Spacing.three,
+    marginBottom: Spacing.three,
+  },
+  list: {
+    paddingBottom: BottomTabInset + 80,
+  },
+  empty: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    gap: Spacing.two,
     paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    paddingBottom: BottomTabInset + 80,
   },
-  title: {
+  emptyTitle: {
+    marginTop: Spacing.three,
+  },
+  emptySubtitle: {
     textAlign: 'center',
   },
-  code: {
-    textTransform: 'uppercase',
+  fab: {
+    position: 'absolute',
+    right: Spacing.four,
+    bottom: BottomTabInset + Spacing.three,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  fabIcon: {
+    fontSize: 28,
+    color: '#fff',
+    lineHeight: 32,
   },
 });
