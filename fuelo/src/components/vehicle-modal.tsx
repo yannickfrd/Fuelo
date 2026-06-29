@@ -41,7 +41,7 @@ const ENGINE_ICON: Record<EngineType, string> = {
 type Props = {
   visible: boolean;
   vehicle?: Vehicle;
-  onSave: (vehicle: Omit<Vehicle, 'id'>) => void;
+  onSave: (vehicle: Omit<Vehicle, 'id' | 'isFavorite'>) => void;
   onDelete?: () => void;
   onClose: () => void;
 };
