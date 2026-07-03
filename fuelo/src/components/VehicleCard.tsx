@@ -2,29 +2,40 @@ import { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { FillUp } from '@/types/vehicle';
+import { useTheme } from '@/hooks/useTheme';
+import { EngineType, Vehicle } from '@/types/vehicle';
 
-type Props = {
-  fillup: FillUp;
-  kmSince?: number;
-  onEdit: () => void;
-  onDelete: () => void;
+const VEHICLE_EMOJI: Record<string, string> = {
+  Voiture: '🚗',
+  Moto: '🏍️',
+  Camionnette: '🚐',
+  Scooter: '🛵',
+  'Camping-car': '🚌',
 };
 
-const MONTHS = ['jan', 'fév', 'mar', 'avr', 'mai', 'juin', 'juil', 'août', 'sep', 'oct', 'nov', 'déc'];
+const ENGINE_ICON: Record<EngineType, string> = {
+  Essence:    '⛽',
+  Éthanol:   '🌿',
+  Diesel:     '🛢️',
+  Électrique: '⚡',
+  GPL:        '🔵',
+};
 
-function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-');
-  return `${parseInt(d)} ${MONTHS[parseInt(m) - 1]} ${y}`;
-}
+type Props = {
+  vehicle: Vehicle;
+  onPress: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  onFavorite: () => void;
+};
 
-export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
+export function VehicleCard({ vehicle, onPress, onEdit, onDelete, onFavorite }: Props) {
   const swipeableRef = useRef<Swipeable>(null);
   const theme = useTheme();
+  const isFav = vehicle.isFavorite === 1;
 
   function handleEdit() {
     swipeableRef.current?.close();
@@ -42,6 +53,7 @@ export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
       outputRange: [0, 160],
       extrapolate: 'clamp',
     });
+
     return (
       <Animated.View style={[styles.actions, { transform: [{ translateX }] }]}>
         <Pressable style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
@@ -56,21 +68,23 @@ export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
 
   return (
     <Swipeable ref={swipeableRef} renderRightActions={renderRightActions} rightThreshold={40}>
-      <TouchableOpacity onPress={handleEdit} activeOpacity={0.7}>
-        <ThemedView type="backgroundElement" style={[styles.card, { borderWidth: 1, borderColor: theme.backgroundSelected }]}>
-          <View style={styles.left}>
-            <ThemedText type="smallBold">{formatDate(fillup.date)}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {fillup.fuelType} · {fillup.liters} L{kmSince !== undefined ? ` · ${kmSince} km` : ''}
-            </ThemedText>
-          </View>
-          <View style={styles.right}>
-            <ThemedText type="smallBold">{fillup.totalPrice.toFixed(2)} €</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {fillup.isFullTank ? '⛽ Plein' : '⚡ Partiel'}
-            </ThemedText>
-          </View>
-        </ThemedView>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+      <ThemedView type="backgroundElement" style={[styles.card, { borderWidth: 1, borderColor: theme.backgroundSelected }]}>
+        <View style={[styles.iconContainer, { backgroundColor: theme.backgroundSelected }]}>
+          <Text style={styles.emoji}>{VEHICLE_EMOJI[vehicle.vehicleType] ?? '🚗'}</Text>
+        </View>
+        <View style={styles.info}>
+          <ThemedText type="smallBold">{vehicle.name}</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {vehicle.vehicleType} · {ENGINE_ICON[vehicle.engineType]} {vehicle.engineType}
+          </ThemedText>
+        </View>
+        <Pressable onPress={onFavorite} hitSlop={8} android_ripple={null}>
+          <Text style={[styles.star, isFav && styles.starActive]}>
+            {isFav ? '★' : '☆'}
+          </Text>
+        </Pressable>
+      </ThemedView>
       </TouchableOpacity>
     </Swipeable>
   );
@@ -80,19 +94,32 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.three,
+    gap: Spacing.three,
     borderRadius: Spacing.two,
     marginBottom: Spacing.two,
   },
-  left: {
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emoji: {
+    fontSize: 22,
+  },
+  info: {
     flex: 1,
     gap: 2,
   },
-  right: {
-    alignItems: 'flex-end',
-    gap: 2,
+  star: {
+    fontSize: 22,
+    color: '#555',
+  },
+  starActive: {
+    color: '#F5A623',
   },
   actions: {
     flexDirection: 'row',

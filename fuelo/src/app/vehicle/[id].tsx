@@ -3,15 +3,15 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { FillupCard } from '@/components/fillup-card';
-import { FillupModal } from '@/components/fillup-modal';
-import { StatsChart } from '@/components/stats-chart';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { FillupCard } from '@/components/FillupCard';
+import { FillupModal } from '@/components/FillupModal';
+import { StatsChart } from '@/components/StatsChart';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { Primary, Spacing } from '@/constants/theme';
-import { useFillups } from '@/hooks/use-fillups';
-import { useVehicle } from '@/hooks/use-vehicle';
-import { useTheme } from '@/hooks/use-theme';
+import { useFillups } from '@/hooks/useFillups';
+import { useVehicle } from '@/hooks/useVehicle';
+import { useTheme } from '@/hooks/useTheme';
 import { FillUp } from '@/types/vehicle';
 
 function computeStats(list: FillUp[]) {

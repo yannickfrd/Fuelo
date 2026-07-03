@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { CanardChart } from '@/components/canard-chart';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { CanardChart } from '@/components/CanardChart';
 import { Primary, Spacing } from '@/constants/theme';
-import { useSessionContext } from '@/contexts/session-context';
-import { useCanardStats, Period } from '@/hooks/use-canard-stats';
-import { useTheme } from '@/hooks/use-theme';
+import { useSessionContext } from '@/contexts/sessionContext';
+import { useCanardStats, Period } from '@/hooks/useCanardStats';
+import { useTheme } from '@/hooks/useTheme';
 import { INCIDENT_ICONS, INCIDENT_LABELS, INCIDENT_TYPES } from '@/types/incident';
 
 const PERIODS: { key: Period; label: string }[] = [

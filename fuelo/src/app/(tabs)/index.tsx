@@ -3,13 +3,13 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { VehicleCard } from '@/components/vehicle-card';
-import { VehicleModal } from '@/components/vehicle-modal';
+import { AnimatedIcon } from '@/components/AnimatedIcon';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { VehicleCard } from '@/components/VehicleCard';
+import { VehicleModal } from '@/components/VehicleModal';
 import { BottomTabInset, Primary, Spacing } from '@/constants/theme';
-import { useVehicles } from '@/hooks/use-vehicles';
+import { useVehicles } from '@/hooks/useVehicles';
 import { Vehicle } from '@/types/vehicle';
 
 export default function HomeScreen() {

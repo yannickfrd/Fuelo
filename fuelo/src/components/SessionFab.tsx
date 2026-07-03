@@ -1,8 +1,8 @@
 import { StyleSheet, Pressable, View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
-import { useSessionContext } from '@/contexts/session-context';
+import { useSessionContext } from '@/contexts/sessionContext';
 
 export function SessionFab() {
   const { isActive, startSession, stopSession, logIncident } = useSessionContext();

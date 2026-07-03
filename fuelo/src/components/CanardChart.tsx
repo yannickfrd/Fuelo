@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { Primary, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { ChartBar } from '@/hooks/use-canard-stats';
+import { useTheme } from '@/hooks/useTheme';
+import { ChartBar } from '@/hooks/useCanardStats';
 
 type Props = { data: ChartBar[] };
 

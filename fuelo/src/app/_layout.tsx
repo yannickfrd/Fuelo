@@ -1,11 +1,11 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import { SessionFab } from '@/components/session-fab';
-import { SessionProvider } from '@/contexts/session-context';
+import { AnimatedSplashOverlay } from '@/components/AnimatedIcon';
+import { SessionFab } from '@/components/SessionFab';
+import { SessionProvider } from '@/contexts/sessionContext';
 import { initDatabase } from '@/db/client';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 initDatabase();
 

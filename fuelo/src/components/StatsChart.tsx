@@ -10,10 +10,10 @@ import Svg, {
   Text as SvgText,
 } from 'react-native-svg';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { Primary, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
+import { useTheme } from '@/hooks/useTheme';
 import { FillUp } from '@/types/vehicle';
 
 type Period = 'plein' | 'mois' | 'annee';
