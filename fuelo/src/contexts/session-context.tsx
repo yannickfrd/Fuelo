@@ -36,7 +36,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const player = useAudioPlayer(require('@/assets/sounds/coinCoin.mp3'));
 
   function playCoinCoin() {
-    try { player.play(); } catch {}
+    try { player.seekTo(0); player.play(); } catch {}
     Vibration.vibrate(80);
   }
 
