@@ -29,7 +29,7 @@ export function SessionFab() {
 const styles = StyleSheet.create({
   wrapper: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 120,
     right: Spacing.four,
     alignItems: 'center',
     gap: Spacing.two,
