@@ -45,3 +45,8 @@ export const incidents = sqliteTable('incidents', {
   timestamp: text('timestamp').notNull(),
   type:      text('type', { enum: INCIDENT_TYPES }),
 });
+
+export const settings = sqliteTable('settings', {
+  key:   text('key').primaryKey(),
+  value: text('value').notNull(),
+});

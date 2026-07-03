@@ -61,4 +61,11 @@ export function initDatabase(): void {
       type TEXT
     );
   `);
+
+  db.$client.execSync(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+  `);
 }

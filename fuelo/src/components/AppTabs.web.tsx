@@ -6,13 +6,12 @@ import {
   TabTriggerSlotProps,
   TabListProps,
 } from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import { Pressable, View, StyleSheet } from 'react-native';
 
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
-
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useThemeContext } from '@/contexts/themeContext';
 
 export default function AppTabs() {
   return (
@@ -25,6 +24,9 @@ export default function AppTabs() {
           </TabTrigger>
           <TabTrigger name="radar" href="/radar" asChild>
             <TabButton>👁 Radar</TabButton>
+          </TabTrigger>
+          <TabTrigger name="settings" href="/settings" asChild>
+            <TabButton>⚙️ Paramètres</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -47,11 +49,11 @@ export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps
 }
 
 export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const { colorScheme } = useThemeContext();
+  const colors = Colors[colorScheme];
 
   return (
-    <View {...props} style={styles.tabListContainer}>
+    <View {...props} style={[styles.tabListContainer, { backgroundColor: colors.background }]}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
         <ThemedText type="smallBold" style={styles.brandText}>
           fuelo
