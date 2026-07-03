@@ -33,9 +33,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [incidents, setIncidents] = useState<Incident[]>(() =>
     activeSession ? getIncidentsBySession(activeSession.id) : [],
   );
-  // TODO: placez coinCoin.mp3 dans assets/sounds/ puis décommentez la ligne ci-dessous
-  // const player = useAudioPlayer(require('@/assets/sounds/coinCoin.mp3'));
-  const player = useAudioPlayer(null);
+  const player = useAudioPlayer(require('@/assets/sounds/coinCoin.mp3'));
 
   function playCoinCoin() {
     try { player.play(); } catch {}
