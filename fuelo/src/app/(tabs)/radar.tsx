@@ -19,11 +19,35 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: 'year',    label: 'Année' },
 ];
 
+function HelpBubble({ text, align = 'right' }: { text: string; align?: 'left' | 'right' }) {
+  const [visible, setVisible] = useState(false);
+  const theme = useTheme();
+  return (
+    <View>
+      <Pressable
+        onPress={() => setVisible(v => !v)}
+        hitSlop={10}
+        style={[styles.helpBtn, { borderColor: theme.backgroundSelected }]}>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.helpBtnText}>?</ThemedText>
+      </Pressable>
+      {visible && (
+        <ThemedView
+          type="backgroundSelected"
+          style={[styles.tooltip, align === 'left' ? { left: 0 } : { right: 0 }]}>
+          <ThemedText type="small" themeColor="textSecondary">{text}</ThemedText>
+        </ThemedView>
+      )}
+    </View>
+  );
+}
+
 export default function CanardsScreen() {
   const [period, setPeriod] = useState<Period>('day');
-  const stats = useCanardStats(period);
-  const { isActive, incidents } = useSessionContext();
+  const { isActive, incidentCount } = useSessionContext();
+  const stats = useCanardStats(period, incidentCount);
   const theme = useTheme();
+
+  const periodLabel = PERIODS.find(p => p.key === period)?.label ?? '';
 
   return (
     <ThemedView style={styles.container}>
@@ -33,13 +57,10 @@ export default function CanardsScreen() {
           {isActive && (
             <View style={[styles.badge, { backgroundColor: '#E53935' }]}>
               <ThemedText type="small" style={styles.badgeText}>
-                Session · {incidents.length} 🦆
+                Session active 🦆
               </ThemedText>
             </View>
           )}
-        </View>
-
-        <View style={[styles.periodBar, { borderColor: theme.backgroundSelected }]}>
         </View>
 
         <View style={[styles.periodBar, { borderColor: theme.backgroundSelected }]}>
@@ -60,10 +81,55 @@ export default function CanardsScreen() {
         </View>
 
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <ThemedView type="backgroundElement" style={styles.totalCard}>
-            <ThemedText type="subtitle" style={styles.totalNumber}>{stats.total}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">canards</ThemedText>
-          </ThemedView>
+          <View style={styles.statRow}>
+            <ThemedView type="backgroundElement" style={styles.statCard}>
+              <View style={styles.statHeader}>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.statTitle}>
+                  TOTAL · {periodLabel.toUpperCase()}
+                </ThemedText>
+                <HelpBubble text={`Total de canards sur la période « ${periodLabel} », toutes sessions confondues.`} align="left" />
+              </View>
+              <ThemedText type="title">{stats.total}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">canards</ThemedText>
+            </ThemedView>
+
+            {isActive && (
+              <ThemedView type="backgroundElement" style={styles.statCard}>
+                <View style={styles.statHeader}>
+                  <ThemedText type="small" themeColor="textSecondary" style={styles.statTitle}>
+                    SESSION
+                  </ThemedText>
+                  <HelpBubble text="Canards détectés depuis le début de la session en cours. Remis à zéro à chaque nouvelle session." />
+                </View>
+                <ThemedText type="title">{incidentCount}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">canards</ThemedText>
+              </ThemedView>
+            )}
+          </View>
+
+          <View style={styles.statRow}>
+            <ThemedView type="backgroundElement" style={styles.statCard}>
+              <View style={styles.statHeader}>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.statTitle}>
+                  MOYENNE
+                </ThemedText>
+                <HelpBubble text="Nombre moyen de canards par trajet sur la période sélectionnée." align="left" />
+              </View>
+              <ThemedText type="title">{stats.avgPerSession}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">moy. / trajet</ThemedText>
+            </ThemedView>
+
+            <ThemedView type="backgroundElement" style={styles.statCard}>
+              <View style={styles.statHeader}>
+                <ThemedText type="small" themeColor="textSecondary" style={styles.statTitle}>
+                  RECORD
+                </ThemedText>
+                <HelpBubble text="Le nombre maximum de canards enregistrés en un seul trajet sur la période." />
+              </View>
+              <ThemedText type="title">{stats.record}</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">sur 1 trajet</ThemedText>
+            </ThemedView>
+          </View>
 
           <CanardChart data={stats.chartData} />
 
@@ -96,8 +162,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Spacing.three,
-    marginBottom: Spacing.three,
+    marginTop: Spacing.two,
+    marginBottom: Spacing.two,
   },
   badge: {
     paddingHorizontal: Spacing.two,
@@ -110,21 +176,60 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: Spacing.two,
     overflow: 'hidden',
-    marginBottom: Spacing.three,
+    marginBottom: Spacing.two,
   },
   periodBtn: { flex: 1 },
   periodBtnInner: {
     paddingVertical: Spacing.two,
     alignItems: 'center',
   },
-  content: { gap: Spacing.three },
-  totalCard: {
+  content: { gap: Spacing.two },
+  statRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  statCard: {
+    flex: 1,
     borderRadius: Spacing.two,
-    padding: Spacing.four,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.two,
     alignItems: 'center',
     gap: Spacing.one,
   },
-  totalNumber: { fontSize: 48 },
+  statHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  statTitle: {
+    letterSpacing: 0.5,
+  },
+  helpBtn: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpBtnText: {
+    fontSize: 11,
+    lineHeight: 14,
+  },
+  tooltip: {
+    position: 'absolute',
+    top: 24,
+    right: 0,
+    width: 220,
+    padding: Spacing.two,
+    borderRadius: Spacing.two,
+    zIndex: 10,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
   typeSection: { gap: Spacing.two },
   sectionLabel: {
     marginLeft: Spacing.one,

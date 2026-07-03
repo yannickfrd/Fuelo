@@ -44,4 +44,21 @@ export function initDatabase(): void {
       isFullTank INTEGER NOT NULL DEFAULT 1
     );
   `);
+
+  db.$client.execSync(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      startedAt TEXT NOT NULL,
+      endedAt TEXT
+    );
+  `);
+
+  db.$client.execSync(`
+    CREATE TABLE IF NOT EXISTS incidents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      sessionId INTEGER NOT NULL,
+      timestamp TEXT NOT NULL,
+      type TEXT
+    );
+  `);
 }

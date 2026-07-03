@@ -4,11 +4,11 @@ import { useAudioPlayer } from 'expo-audio';
 
 import { createIncident, getIncidentsBySession } from '@/repositories/incidents';
 import { createSession, endSession, getActiveSession } from '@/repositories/sessions';
-import { Incident, IncidentType, Session } from '@/types/incident';
+import { IncidentType, Session } from '@/types/incident';
 
 type SessionContextType = {
   activeSession: Session | null;
-  incidents: Incident[];
+  incidentCount: number;
   isActive: boolean;
   startSession: () => void;
   stopSession: () => void;
@@ -17,7 +17,7 @@ type SessionContextType = {
 
 const SessionContext = createContext<SessionContextType>({
   activeSession: null,
-  incidents: [],
+  incidentCount: 0,
   isActive: false,
   startSession: () => {},
   stopSession: () => {},
@@ -30,9 +30,11 @@ export function useSessionContext() {
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [activeSession, setActiveSession] = useState<Session | null>(() => getActiveSession() ?? null);
-  const [incidents, setIncidents] = useState<Incident[]>(() =>
-    activeSession ? getIncidentsBySession(activeSession.id) : [],
-  );
+  const [incidentCount, setIncidentCount] = useState<number>(() => {
+    const session = getActiveSession();
+    return session ? getIncidentsBySession(session.id).length : 0;
+  });
+
   const player = useAudioPlayer(require('@/assets/sounds/coinCoin.mp3'));
 
   function playCoinCoin() {
@@ -43,31 +45,31 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const startSession = useCallback(() => {
     const session = createSession(new Date().toISOString());
     setActiveSession(session);
-    setIncidents([]);
+    setIncidentCount(0);
   }, []);
 
   const stopSession = useCallback(() => {
     if (!activeSession) return;
     endSession(activeSession.id, new Date().toISOString());
     setActiveSession(null);
-    setIncidents([]);
+    setIncidentCount(0);
   }, [activeSession]);
 
   const logIncident = useCallback(
     (type?: IncidentType) => {
       if (!activeSession) return;
-      const incident = createIncident(activeSession.id, new Date().toISOString(), type);
-      setIncidents(prev => [...prev, incident]);
-      playCoinCoin();
+      createIncident(activeSession.id, new Date().toISOString(), type);
+      setIncidentCount(prev => prev + 1);
+      setTimeout(playCoinCoin, 0);
     },
-    [activeSession],
+    [activeSession, playCoinCoin],
   );
 
   return (
     <SessionContext.Provider
       value={{
         activeSession,
-        incidents,
+        incidentCount,
         isActive: activeSession !== null,
         startSession,
         stopSession,
