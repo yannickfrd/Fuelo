@@ -1,56 +1,70 @@
-# Welcome to your Expo app 👋
+# fuelo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app to track vehicle fillups and monitor reckless drivers around you.
 
-## Get started
+Built with [Expo](https://expo.dev) (SDK 56), React Native, and SQLite.
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- **Vehicles** — Add and manage your vehicles (car, motorcycle, scooter, etc.)
+- **Fillups** — Log fuel fillups with odometer, price per liter, and fuel type
+- **Radar** — Spot a reckless driver? Hit the duck button. Purely scientific data collection with charts and everything. (Results may not hold up in court.)
+- **Settings** — Choose between light, dark, or system theme
 
-2. Start the app
+## Stack
 
-   ```bash
-   npx expo start
-   ```
+- [Expo Router](https://expo.dev/router) — file-based navigation
+- [expo-sqlite](https://docs.expo.dev/versions/latest/sdk/sqlite/) + [drizzle-orm](https://orm.drizzle.team/) — local database
+- [expo-audio](https://docs.expo.dev/versions/latest/sdk/audio/) — sound feedback
+- [react-native-gifted-charts](https://github.com/Abhinandan-Kushwaha/react-native-gifted-charts) — charts
+- [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) v4 — animations
 
-In the output, you'll find options to open the app in a
+## Getting started
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+> A **development build** is required (not Expo Go) due to native modules.
 
 ```bash
-npm run reset-project
+# Install dependencies
+npm install
+
+# Build and run on Android (first time or after native changes)
+npm run android
+
+# Start Metro only (after the dev build is already installed)
+npx expo start --localhost --android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Windows + Android emulator
 
-### Other setup steps
+If Metro fails to connect on Windows, use:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+adb reverse tcp:8081 tcp:8081
+NODE_OPTIONS=--dns-result-order=ipv4first npx expo start --localhost --android
+```
 
-## Learn more
+## Project structure
 
-To learn more about developing your project with Expo, look at the following resources:
+```
+src/
+  app/          # Expo Router screens (file-based routing)
+  components/   # Reusable UI components (PascalCase)
+  constants/    # theme.ts — Colors, Fonts, Spacing
+  contexts/     # React contexts (sessionContext, themeContext)
+  db/           # SQLite client and drizzle schema
+  hooks/        # Custom hooks (camelCase, use* prefix)
+  repositories/ # Data access layer (one file per entity)
+  types/        # Shared TypeScript types
+assets/
+  sounds/       # coinCoin.mp3 — duck quack sound
+  images/       # Icons and splash screen assets
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Commands
 
-## Join the community
+```bash
+npm run lint     # ESLint via expo lint
+npm run android  # Build and run on Android emulator/device
+npm run web      # Start on web
+```
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
