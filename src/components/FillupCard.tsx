@@ -1,6 +1,6 @@
-import { useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -23,27 +23,29 @@ function formatDate(iso: string): string {
 }
 
 export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
-  const swipeableRef = useRef<Swipeable>(null);
   const theme = useTheme();
 
-  function handleEdit() {
-    swipeableRef.current?.close();
-    onEdit();
-  }
+  function RightActions(
+    _progress: SharedValue<number>,
+    translation: SharedValue<number>,
+    swipeable: SwipeableMethods,
+  ) {
+    const style = useAnimatedStyle(() => ({
+      transform: [{ translateX: interpolate(translation.value, [-160, 0], [0, 160], Extrapolation.CLAMP) }],
+    }));
 
-  function handleDelete() {
-    swipeableRef.current?.close();
-    onDelete();
-  }
+    function handleEdit() {
+      swipeable.close();
+      onEdit();
+    }
 
-  function renderRightActions(_: unknown, dragX: Animated.AnimatedInterpolation<number>) {
-    const translateX = dragX.interpolate({
-      inputRange: [-160, 0],
-      outputRange: [0, 160],
-      extrapolate: 'clamp',
-    });
+    function handleDelete() {
+      swipeable.close();
+      onDelete();
+    }
+
     return (
-      <Animated.View style={[styles.actions, { transform: [{ translateX }] }]}>
+      <Animated.View style={[styles.actions, style]}>
         <Pressable style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
           <Text style={styles.actionText}>Éditer</Text>
         </Pressable>
@@ -55,8 +57,8 @@ export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
   }
 
   return (
-    <Swipeable ref={swipeableRef} renderRightActions={renderRightActions} rightThreshold={40}>
-      <TouchableOpacity onPress={handleEdit} activeOpacity={0.7}>
+    <Swipeable renderRightActions={RightActions} rightThreshold={40}>
+      <Pressable onPress={onEdit} style={({ pressed }) => pressed && styles.pressed}>
         <ThemedView type="backgroundElement" style={[styles.card, { borderWidth: 1, borderColor: theme.backgroundSelected }]}>
           <View style={styles.left}>
             <ThemedText type="smallBold">{formatDate(fillup.date)}</ThemedText>
@@ -71,7 +73,7 @@ export function FillupCard({ fillup, kmSince, onEdit, onDelete }: Props) {
             </ThemedText>
           </View>
         </ThemedView>
-      </TouchableOpacity>
+      </Pressable>
     </Swipeable>
   );
 }
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.three,
     borderRadius: Spacing.two,
     marginBottom: Spacing.two,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   left: {
     flex: 1,

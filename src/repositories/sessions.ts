@@ -1,12 +1,11 @@
-import { eq, isNull } from 'drizzle-orm';
+import {eq, isNull} from 'drizzle-orm';
 
-import { db } from '@/db/client';
-import { sessions } from '@/db/schema';
-import { Session } from '@/types/incident';
+import {db} from '@/db/client';
+import {sessions} from '@/db/schema';
+import {Session} from '@/types/incident';
 
 export function createSession(startedAt: string): Session {
-  const result = db.insert(sessions).values({ startedAt }).returning().get();
-  return result;
+  return db.insert(sessions).values({startedAt}).returning().get();
 }
 
 export function endSession(id: number, endedAt: string): void {
