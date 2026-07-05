@@ -37,11 +37,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
   const player = useAudioPlayer(require('@/assets/sounds/coinCoin.mp3'));
 
-  function playCoinCoin() {
-    try { player.seekTo(0); player.play(); } catch {}
-    Vibration.vibrate(80);
-  }
-
   const startSession = useCallback(() => {
     const session = createSession(new Date().toISOString());
     setActiveSession(session);
@@ -60,9 +55,12 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       if (!activeSession) return;
       createIncident(activeSession.id, new Date().toISOString(), type);
       setIncidentCount(prev => prev + 1);
-      setTimeout(playCoinCoin, 0);
+      setTimeout(() => {
+        try { player.seekTo(0); player.play(); } catch {}
+        Vibration.vibrate(80);
+      }, 0);
     },
-    [activeSession, playCoinCoin],
+    [activeSession, player],
   );
 
   return (

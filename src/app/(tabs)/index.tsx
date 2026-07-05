@@ -69,6 +69,7 @@ export default function HomeScreen() {
       </Pressable>
 
       <VehicleModal
+        key={modalVisible ? (editingVehicle?.id ?? 'new') : 'closed'}
         visible={modalVisible}
         vehicle={editingVehicle}
         onSave={(data) => saveVehicle(data, editingVehicle)}

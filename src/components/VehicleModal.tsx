@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Modal,
@@ -22,20 +22,12 @@ import {
   VehicleType,
 } from '@/types/vehicle';
 
-const ENGINE_LABELS: Record<EngineType, string> = {
-  Essence:    'Essence · SP95, SP98, E10',
-  Éthanol:   'Éthanol (Flex-fuel) · SP95, SP98, E10, E85',
-  Diesel:     'Diesel',
-  Électrique: 'Électrique',
-  GPL:        'GPL · GPL + Essence',
-};
-
 const ENGINE_ICON: Record<EngineType, string> = {
-  Essence:    '⛽',
-  Éthanol:   '🌿',
-  Diesel:     '🛢️',
+  Essence:      '⛽',
+  Éthanol:    '🌿',
+  Diesel:       '🛢️',
   Électrique: '⚡',
-  GPL:        '🔵',
+  GPL:          '🔵',
 };
 
 type Props = {
@@ -48,21 +40,9 @@ type Props = {
 
 export function VehicleModal({ visible, vehicle, onSave, onDelete, onClose }: Props) {
   const theme = useTheme();
-  const [name, setName] = useState('');
-  const [vehicleType, setVehicleType] = useState<VehicleType>('Voiture');
-  const [engineType, setEngineType] = useState<EngineType>('Essence');
-
-  useEffect(() => {
-    if (vehicle) {
-      setName(vehicle.name);
-      setVehicleType(vehicle.vehicleType);
-      setEngineType(vehicle.engineType);
-    } else {
-      setName('');
-      setVehicleType('Voiture');
-      setEngineType('Essence');
-    }
-  }, [vehicle, visible]);
+  const [name, setName] = useState(vehicle?.name ?? '');
+  const [vehicleType, setVehicleType] = useState<VehicleType>(vehicle?.vehicleType ?? 'Voiture');
+  const [engineType, setEngineType] = useState<EngineType>(vehicle?.engineType ?? 'Essence');
 
   function handleSave() {
     if (!name.trim()) {

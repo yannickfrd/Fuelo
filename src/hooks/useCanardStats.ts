@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { getAllIncidents } from '@/repositories/incidents';
 import { getAllSessions } from '@/repositories/sessions';
-import { Incident, INCIDENT_TYPES, IncidentType, Session } from '@/types/incident';
+import { Incident, IncidentType, Session } from '@/types/incident';
 
 export type Period = 'session' | 'day' | 'week' | 'month' | 'year';
 
@@ -173,5 +173,8 @@ export function useCanardStats(period: Period, incidentVersion?: number): Canard
       byType: byTypeCount(allIncidents),
       ...sessionStats(allIncidents, allSessions),
     };
+    // incidentVersion n'est pas lu ici : il sert uniquement à invalider le cache
+    // quand getAllIncidents()/getAllSessions() (store externe non réactif) changent.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, incidentVersion]);
 }

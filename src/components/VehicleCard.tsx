@@ -1,6 +1,6 @@
-import { useRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Swipeable, TouchableOpacity } from 'react-native-gesture-handler';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -17,11 +17,11 @@ const VEHICLE_EMOJI: Record<string, string> = {
 };
 
 const ENGINE_ICON: Record<EngineType, string> = {
-  Essence:    '⛽',
-  Éthanol:   '🌿',
-  Diesel:     '🛢️',
+  Essence:      '⛽',
+  Éthanol:    '🌿',
+  Diesel:       '🛢️',
   Électrique: '⚡',
-  GPL:        '🔵',
+  GPL:          '🔵',
 };
 
 type Props = {
@@ -33,29 +33,30 @@ type Props = {
 };
 
 export function VehicleCard({ vehicle, onPress, onEdit, onDelete, onFavorite }: Props) {
-  const swipeableRef = useRef<Swipeable>(null);
   const theme = useTheme();
   const isFav = vehicle.isFavorite === 1;
 
-  function handleEdit() {
-    swipeableRef.current?.close();
-    onEdit();
-  }
+  function RightActions(
+    _progress: SharedValue<number>,
+    translation: SharedValue<number>,
+    swipeable: SwipeableMethods,
+  ) {
+    const style = useAnimatedStyle(() => ({
+      transform: [{ translateX: interpolate(translation.value, [-160, 0], [0, 160], Extrapolation.CLAMP) }],
+    }));
 
-  function handleDelete() {
-    swipeableRef.current?.close();
-    onDelete();
-  }
+    function handleEdit() {
+      swipeable.close();
+      onEdit();
+    }
 
-  function renderRightActions(_: unknown, dragX: Animated.AnimatedInterpolation<number>) {
-    const translateX = dragX.interpolate({
-      inputRange: [-160, 0],
-      outputRange: [0, 160],
-      extrapolate: 'clamp',
-    });
+    function handleDelete() {
+      swipeable.close();
+      onDelete();
+    }
 
     return (
-      <Animated.View style={[styles.actions, { transform: [{ translateX }] }]}>
+      <Animated.View style={[styles.actions, style]}>
         <Pressable style={[styles.actionBtn, styles.editBtn]} onPress={handleEdit}>
           <Text style={styles.actionText}>Éditer</Text>
         </Pressable>
@@ -67,25 +68,25 @@ export function VehicleCard({ vehicle, onPress, onEdit, onDelete, onFavorite }: 
   }
 
   return (
-    <Swipeable ref={swipeableRef} renderRightActions={renderRightActions} rightThreshold={40}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <ThemedView type="backgroundElement" style={[styles.card, { borderWidth: 1, borderColor: theme.backgroundSelected }]}>
-        <View style={[styles.iconContainer, { backgroundColor: theme.backgroundSelected }]}>
-          <Text style={styles.emoji}>{VEHICLE_EMOJI[vehicle.vehicleType] ?? '🚗'}</Text>
-        </View>
-        <View style={styles.info}>
-          <ThemedText type="smallBold">{vehicle.name}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {vehicle.vehicleType} · {ENGINE_ICON[vehicle.engineType]} {vehicle.engineType}
-          </ThemedText>
-        </View>
-        <Pressable onPress={onFavorite} hitSlop={8} android_ripple={null}>
-          <Text style={[styles.star, isFav && styles.starActive]}>
-            {isFav ? '★' : '☆'}
-          </Text>
-        </Pressable>
-      </ThemedView>
-      </TouchableOpacity>
+    <Swipeable renderRightActions={RightActions} rightThreshold={40}>
+      <Pressable onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
+        <ThemedView type="backgroundElement" style={[styles.card, { borderWidth: 1, borderColor: theme.backgroundSelected }]}>
+          <View style={[styles.iconContainer, { backgroundColor: theme.backgroundSelected }]}>
+            <Text style={styles.emoji}>{VEHICLE_EMOJI[vehicle.vehicleType] ?? '🚗'}</Text>
+          </View>
+          <View style={styles.info}>
+            <ThemedText type="smallBold">{vehicle.name}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {vehicle.vehicleType} · {ENGINE_ICON[vehicle.engineType]} {vehicle.engineType}
+            </ThemedText>
+          </View>
+          <Pressable onPress={onFavorite} hitSlop={8} android_ripple={null}>
+            <Text style={[styles.star, isFav && styles.starActive]}>
+              {isFav ? '★' : '☆'}
+            </Text>
+          </Pressable>
+        </ThemedView>
+      </Pressable>
     </Swipeable>
   );
 }
@@ -99,6 +100,9 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     borderRadius: Spacing.two,
     marginBottom: Spacing.two,
+  },
+  pressed: {
+    opacity: 0.7,
   },
   iconContainer: {
     width: 44,
