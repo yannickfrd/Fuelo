@@ -1,15 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { AnimatedSplashOverlay } from '@/components/AnimatedIcon';
+import { SessionFab } from '@/components/SessionFab';
+import { SessionProvider } from '@/contexts/sessionContext';
+import { ThemePreferenceProvider, useThemeContext } from '@/contexts/themeContext';
+import { initDatabase } from '@/db/client';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+initDatabase();
+
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <ThemePreferenceProvider>
+      <RootLayoutInner />
+    </ThemePreferenceProvider>
+  );
+}
+
+function RootLayoutInner() {
+  const { colorScheme } = useThemeContext();
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <SessionProvider>
+          <AnimatedSplashOverlay />
+          <Stack screenOptions={{ headerShown: false }} />
+          <SessionFab />
+        </SessionProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
